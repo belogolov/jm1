@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 @WebServlet("/all")
 public class AllUsersServlet extends HttpServlet {
-    UserService userService = new UserService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -40,7 +39,7 @@ public class AllUsersServlet extends HttpServlet {
             long id = getId(req);
             if (id > 0) {
                 try {
-                    userService.deleteUser(id);
+                    UserService.getInstance().deleteUser(id);
                     refreshUsers(req, resp);
                 } catch (DBException e) {
                     resp.setStatus(400);
@@ -55,7 +54,7 @@ public class AllUsersServlet extends HttpServlet {
     private void refreshUsers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         try {
-            req.setAttribute("listUsers", userService.getAllUsers());
+            req.setAttribute("listUsers", UserService.getInstance().getAllUsers());
         } catch (DBException e) {
             req.setAttribute("listUsers", new ArrayList<User>());
         }

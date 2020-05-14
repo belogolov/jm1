@@ -13,7 +13,6 @@ import java.io.IOException;
 
 @WebServlet("/edit")
 public class EditUserServlet extends HttpServlet {
-    UserService userService = new UserService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -25,7 +24,7 @@ public class EditUserServlet extends HttpServlet {
             long id = Long.parseLong(req.getParameter("id"));
             User user;
             try {
-                user = userService.getUserById(id);
+                user = UserService.getInstance().getUserById(id);
             } catch (DBException e) {
                 resp.setStatus(400);
                 throw new IOException(e);
@@ -48,14 +47,14 @@ public class EditUserServlet extends HttpServlet {
             }
             if (id > 0) {
                 try {
-                    userService.updateUser(getUser(req, id));
+                    UserService.getInstance().updateUser(getUser(req, id));
                 } catch (DBException e) {
                     resp.setStatus(400);
                     throw new IOException(e);
                 }
             } else {
                 try {
-                    userService.addUser(getUser(req, 0));
+                    UserService.getInstance().addUser(getUser(req, 0));
                 } catch (DBException e) {
                     resp.setStatus(400);
                     throw new IOException(e);
