@@ -1,26 +1,43 @@
 package util;
 
 import model.User;
+import org.hibernate.cfg.Configuration;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
 
 public class DBHelper {
-    private static SessionFactory sessionFactory;
+    private static DBHelper dbHelper;
 
-    public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-            sessionFactory = createSessionFactory();
-        }
-        return sessionFactory;
+    private DBHelper() {
     }
 
-    private static Configuration getMySqlConfiguration() {
+    public static DBHelper getInstance() {
+        if (dbHelper == null) {
+            dbHelper = new DBHelper();
+        }
+        return dbHelper;
+    }
+
+    public Connection getConnection() {
+        String mySQLConfigPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "mySQL.properties";
+        Properties mySQLProps = new Properties();
+        try {
+            mySQLProps.load(new FileInputStream(mySQLConfigPath));
+            DriverManager.registerDriver((Driver) Class.forName(mySQLProps.getProperty("driver")).newInstance());
+            return DriverManager.getConnection(mySQLProps.getProperty("host"), mySQLProps.getProperty("login"), mySQLProps.getProperty("password"));
+        } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+            throw new IllegalStateException();
+        }
+    }
+
+    public Configuration getConfiguration() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(User.class);
         String mySQLConfigPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "mySQL.properties";
@@ -38,14 +55,6 @@ public class DBHelper {
             e.printStackTrace();
         }
         return configuration;
-    }
-
-    private static SessionFactory createSessionFactory() {
-        Configuration configuration = getMySqlConfiguration();
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
-        builder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = builder.build();
-        return configuration.buildSessionFactory(serviceRegistry);
     }
 
 }
