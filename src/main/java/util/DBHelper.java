@@ -20,7 +20,6 @@ public class DBHelper {
         return sessionFactory;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     private static Configuration getMySqlConfiguration() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(User.class);
