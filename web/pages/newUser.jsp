@@ -2,24 +2,24 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
-    <title>Edit user</title>
+    <title>New user</title>
 </head>
 <body>
 <div>
     <div>
         <div>
-            <h2>Edit user</h2>
+            <h2>New user</h2>
         </div>
 
         <form method="post">
             <label>Name:
-                <input type="text" name="name" value="${user.name}"><br/>
+                <input type="text" name="name"><br/>
             </label>
             <label>Email:
-                <input type="text" name="email" value="${user.email}"><br/>
+                <input type="text" name="email"><br/>
             </label>
             <label>Password:
-                <input type="text" name="password" value="${user.password}"><br/>
+                <input type="text" name="password"><br/>
             </label>
             <h1></h1>
             <table>

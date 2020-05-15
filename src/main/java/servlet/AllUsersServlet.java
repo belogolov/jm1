@@ -1,8 +1,8 @@
 package servlet;
 
-import com.google.gson.Gson;
 import exception.DBException;
 import model.User;
+import service.Service;
 import service.UserService;
 
 import javax.servlet.ServletException;
@@ -15,6 +15,12 @@ import java.util.ArrayList;
 
 @WebServlet("/all")
 public class AllUsersServlet extends HttpServlet {
+    private UserService userService;
+
+    @Override
+    public void init() throws ServletException {
+        this.userService = Service.getInstance();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -27,26 +33,12 @@ public class AllUsersServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         if (req.getParameter("Add") != null) {
-            resp.sendRedirect(req.getContextPath() + "/edit");
-        } else if (req.getParameter("Edit") != null) {
-            String id = req.getParameter("id");
-            if (id != null) {
-                resp.sendRedirect(req.getContextPath() + "/edit?id=" + id);
-            } else {
-                resp.sendRedirect(req.getContextPath() + "/edit");
-            }
-        } else if (req.getParameter("Delete") != null) {
-            long id = getId(req);
-            if (id > 0) {
-                try {
-                    UserService.getInstance().deleteUser(id);
-                    refreshUsers(req, resp);
-                } catch (DBException e) {
-                    resp.setStatus(400);
-                    throw new IOException(e);
-                }
-            }
-        } else if (req.getParameter("Refresh") != null) {
+            resp.sendRedirect(req.getContextPath() + "/add");
+        } else if (req.getParameter("Edit") != null && req.getParameter("id") != null) {
+            resp.sendRedirect(req.getContextPath() + "/edit?id=" + req.getParameter("id"));
+        } else if (req.getParameter("Delete") != null && req.getParameter("id") != null) {
+            resp.sendRedirect(req.getContextPath() + "/delete?id=" + req.getParameter("id"));
+        } else {
             refreshUsers(req, resp);
         }
     }
@@ -54,25 +46,12 @@ public class AllUsersServlet extends HttpServlet {
     private void refreshUsers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         try {
-            req.setAttribute("listUsers", UserService.getInstance().getAllUsers());
+            req.setAttribute("listUsers", userService.getAllUsers());
         } catch (DBException e) {
             req.setAttribute("listUsers", new ArrayList<User>());
         }
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
         resp.setStatus(200);
-    }
-
-    private long getId(HttpServletRequest req) throws IOException {
-        if (req.getParameter("id") == null) {
-            return 0;
-        }
-        long id;
-        try {
-            id = Long.parseLong(req.getParameter("id"));
-        } catch (NumberFormatException e) {
-            throw new IOException("Incorrect ID", e);
-        }
-        return id;
     }
 
 }
