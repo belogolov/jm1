@@ -1,25 +1,13 @@
 package dao;
 
-import util.DBProperties;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import util.AppProperties;
 
 public class UserDaoFactory {
     private static String DAO_TYPE;
 
     private String getDaoType() {
-//        String daoConfigPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "dao.properties";
-//        Properties daoProps = new Properties();
-//        try {
-//            daoProps.load(new FileInputStream(daoConfigPath));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-        //DAO_TYPE = daoProps.getProperty("daotype").toLowerCase();
-        DBProperties prop = new DBProperties("dao.properties");
-        DAO_TYPE = prop.getProperty("daotype").toLowerCase();
+        AppProperties prop = new AppProperties("dao.properties");
+        DAO_TYPE = prop.getProperty("daotype");
         return DAO_TYPE;
     }
 

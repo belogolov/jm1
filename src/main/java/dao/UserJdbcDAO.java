@@ -1,11 +1,14 @@
 package dao;
 
+import model.Role;
 import model.User;
 import util.DBHelper;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UserJdbcDAO implements UserDAO {
 
@@ -30,19 +33,37 @@ public class UserJdbcDAO implements UserDAO {
     @Override
     public User getUserById(long id) {
         Connection connection = DBHelper.getInstance().getConnection();
-        User client = null;
+        User user = null;
         try (Statement stmt = connection.createStatement()) {
             if (stmt.execute("SELECT * FROM users WHERE id='" + id + "'")) {
                 try (ResultSet rs = stmt.getResultSet()) {
                     if (rs.next()) {
-                        client = new User(rs);
+                        user = new User(rs);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return client;
+        return user;
+    }
+
+    @Override
+    public User getUserByLogin(String login) {
+        Connection connection = DBHelper.getInstance().getConnection();
+        User user = null;
+        try (Statement stmt = connection.createStatement()) {
+            if (stmt.execute("SELECT * FROM users WHERE email='" + login + "'")) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                    if (rs.next()) {
+                        user = new User(rs);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
     }
 
     @Override
@@ -79,4 +100,61 @@ public class UserJdbcDAO implements UserDAO {
         }
     }
 
+    @Override
+    public boolean isValidUser(String login, String password) throws SQLException {
+        Connection connection = DBHelper.getInstance().getConnection();
+        User user = null;
+        try (Statement stmt = connection.createStatement()) {
+            if (stmt.execute("SELECT * FROM users WHERE email='" + login+"'")) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                    if (rs.next()) {
+                        user = new User(rs);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (user == null) {
+            return false;
+        }
+        return user.getPassword().equals(password);
+    }
+
+    @Override
+    public Set<Role> getUserRoles(User user) {
+        Connection connection = DBHelper.getInstance().getConnection();
+        Set<Role> roles = new HashSet<>();
+        try (Statement stmt = connection.createStatement()) {
+            String sql = "SELECT r.* FROM users_roles ur INNER JOIN roles r ON ur.role_id = r.id WHERE user_id='" + user.getId() + "'";
+            if (stmt.execute(sql)) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                    while (rs.next()) {
+                        roles.add(new Role(rs));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return roles;
+    }
+
+    @Override
+    public Role getRoleById(long id) {
+        Connection connection = DBHelper.getInstance().getConnection();
+        Role role = null;
+        try (Statement stmt = connection.createStatement()) {
+            if (stmt.execute("SELECT * FROM roles WHERE id='" + id + "'")) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                    if (rs.next()) {
+                        role = new Role(rs);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return role;
+    }
 }

@@ -3,10 +3,12 @@ package service;
 import dao.UserDAO;
 import dao.UserDaoFactory;
 import exception.DBException;
+import model.Role;
 import model.User;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 public class Service implements UserService {
     private static UserService userService;
@@ -33,6 +35,11 @@ public class Service implements UserService {
     @Override
     public User getUserById(Long id) throws DBException {
         return userDAO.getUserById(id);
+    }
+
+    @Override
+    public User getUserByLogin(String login) throws DBException {
+        return userDAO.getUserByLogin(login);
     }
 
     @Override
@@ -68,4 +75,24 @@ public class Service implements UserService {
         }
     }
 
+    @Override
+    public boolean isValidUser(String login, String password) throws DBException {
+        boolean isValid = false;
+        try {
+            isValid = userDAO.isValidUser(login, password);
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }
+        return isValid;
+    }
+
+    @Override
+    public Set<Role> getRoles(User user) throws DBException {
+        return userDAO.getUserRoles(user);
+    }
+
+    @Override
+    public Role getRoleById(Long id) throws DBException {
+        return userDAO.getRoleById(id);
+    }
 }

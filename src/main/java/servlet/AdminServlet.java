@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet("/all")
-public class AllUsersServlet extends HttpServlet {
+@WebServlet("/admin")
+public class AdminServlet extends HttpServlet {
     private UserService userService;
 
     @Override
@@ -50,7 +50,7 @@ public class AllUsersServlet extends HttpServlet {
         } catch (DBException e) {
             req.setAttribute("listUsers", new ArrayList<User>());
         }
-        req.getRequestDispatcher("/index.jsp").forward(req, resp);
+        req.getRequestDispatcher("/pages/listOfUsers.jsp").forward(req, resp);
         resp.setStatus(200);
     }
 

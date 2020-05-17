@@ -47,18 +47,18 @@ public class EditUserServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         if (req.getParameter("OK") != null) {
             try {
-                long id = Long.parseLong(req.getParameter("id"));
-                userService.updateUser(getUser(req, id));
+                userService.updateUser(getUser(req));
             } catch (NumberFormatException | DBException e) {
                 resp.setStatus(400);
                 throw new IOException(e);
             }
         }
-        resp.sendRedirect(req.getContextPath() + "/all");
+        resp.sendRedirect(req.getContextPath() + "/admin");
         resp.setStatus(200);
     }
 
-    private User getUser(HttpServletRequest req, long id) {
+    private User getUser(HttpServletRequest req) throws NumberFormatException {
+        long id = Long.parseLong(req.getParameter("id"));
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String password = req.getParameter("password");

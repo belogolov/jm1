@@ -40,7 +40,7 @@ public class AddUserServlet extends HttpServlet {
                 throw new IOException(e);
             }
         }
-        resp.sendRedirect(req.getContextPath() + "/all");
+        resp.sendRedirect(req.getContextPath() + "/admin");
         resp.setStatus(200);
     }
 
