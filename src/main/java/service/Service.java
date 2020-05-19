@@ -15,8 +15,7 @@ public class Service implements UserService {
     private UserDAO userDAO;
 
     private Service() {
-        UserDaoFactory factory = new UserDaoFactory();
-        this.userDAO = factory.createFactory();
+        this.userDAO = new UserDaoFactory().createFactory();
     }
 
     public static UserService getInstance() {
@@ -76,14 +75,8 @@ public class Service implements UserService {
     }
 
     @Override
-    public boolean isValidUser(String login, String password) throws DBException {
-        boolean isValid = false;
-        try {
-            isValid = userDAO.isValidUser(login, password);
-        } catch (SQLException e) {
-            throw new DBException(e);
-        }
-        return isValid;
+    public User validUser(String login, String password) throws DBException {
+        return userDAO.validUser(login, password);
     }
 
     @Override

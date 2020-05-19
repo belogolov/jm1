@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Set;
 
 public class UserJdbcDAO implements UserDAO {
+    private Connection connection = DBHelper.getInstance().getConnection();
 
     @Override
     public List<User> getAllUsers() {
-        Connection connection = DBHelper.getInstance().getConnection();
         List<User> list = new ArrayList<>();
         try (Statement stmt = connection.createStatement()) {
             if (stmt.execute("SELECT * FROM users")) {
@@ -32,7 +32,6 @@ public class UserJdbcDAO implements UserDAO {
 
     @Override
     public User getUserById(long id) {
-        Connection connection = DBHelper.getInstance().getConnection();
         User user = null;
         try (Statement stmt = connection.createStatement()) {
             if (stmt.execute("SELECT * FROM users WHERE id='" + id + "'")) {
@@ -50,7 +49,6 @@ public class UserJdbcDAO implements UserDAO {
 
     @Override
     public User getUserByLogin(String login) {
-        Connection connection = DBHelper.getInstance().getConnection();
         User user = null;
         try (Statement stmt = connection.createStatement()) {
             if (stmt.execute("SELECT * FROM users WHERE email='" + login + "'")) {
@@ -68,7 +66,6 @@ public class UserJdbcDAO implements UserDAO {
 
     @Override
     public void addUser(User user) throws SQLException {
-        Connection connection = DBHelper.getInstance().getConnection();
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("INSERT INTO users (name, email, password) " +
                     "VALUES ('" + user.getName() + "', '" + user.getEmail() + "', '" + user.getPassword() + "')");
@@ -82,7 +79,6 @@ public class UserJdbcDAO implements UserDAO {
 
     @Override
     public void updateUser(User user) throws SQLException {
-        Connection connection = DBHelper.getInstance().getConnection();
         try (PreparedStatement  stmt = connection.prepareStatement("UPDATE users SET name=?, email=?, password=? WHERE id=?")) {
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getEmail());
@@ -93,7 +89,6 @@ public class UserJdbcDAO implements UserDAO {
     }
 
     public void deleteUserById(Long id) throws SQLException {
-        Connection connection = DBHelper.getInstance().getConnection();
         try (PreparedStatement  stmt = connection.prepareStatement("DELETE FROM users WHERE id=?")) {
             stmt.setLong(1, id);
             stmt.execute();
@@ -101,8 +96,7 @@ public class UserJdbcDAO implements UserDAO {
     }
 
     @Override
-    public boolean isValidUser(String login, String password) throws SQLException {
-        Connection connection = DBHelper.getInstance().getConnection();
+    public User validUser(String login, String password) {
         User user = null;
         try (Statement stmt = connection.createStatement()) {
             if (stmt.execute("SELECT * FROM users WHERE email='" + login+"'")) {
@@ -115,15 +109,14 @@ public class UserJdbcDAO implements UserDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (user == null) {
-            return false;
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
         }
-        return user.getPassword().equals(password);
+        return null;
     }
 
     @Override
     public Set<Role> getUserRoles(User user) {
-        Connection connection = DBHelper.getInstance().getConnection();
         Set<Role> roles = new HashSet<>();
         try (Statement stmt = connection.createStatement()) {
             String sql = "SELECT r.* FROM users_roles ur INNER JOIN roles r ON ur.role_id = r.id WHERE user_id='" + user.getId() + "'";
@@ -142,7 +135,6 @@ public class UserJdbcDAO implements UserDAO {
 
     @Override
     public Role getRoleById(long id) {
-        Connection connection = DBHelper.getInstance().getConnection();
         Role role = null;
         try (Statement stmt = connection.createStatement()) {
             if (stmt.execute("SELECT * FROM roles WHERE id='" + id + "'")) {

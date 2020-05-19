@@ -11,7 +11,7 @@
             <h2>New user</h2>
         </div>
 
-        <form method="post">
+        <form method="POST">
             <label>Name:
                 <input type="text" name="name"><br/>
             </label>

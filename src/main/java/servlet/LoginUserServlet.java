@@ -1,7 +1,6 @@
 package servlet;
 
 import exception.DBException;
-import model.Role;
 import model.User;
 import service.Service;
 import service.UserService;
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Set;
 
 @WebServlet("/login")
 public class LoginUserServlet extends HttpServlet {
@@ -35,22 +33,12 @@ public class LoginUserServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String email = req.getParameter("email");
         try {
-            if (userService.isValidUser(email, req.getParameter("password"))) {
-                User user = userService.getUserByLogin(email);
-                Set<Role> roles = userService.getRoles(user);
-                Role admin = userService.getRoleById(1L);
-                if (roles.contains(admin)) {
-                    req.getSession().setAttribute("loggedAsAdmin", new Boolean(true));
-                    resp.sendRedirect(req.getContextPath() + "/admin");
-                    //req.getRequestDispatcher("/admin").forward(req, resp);
-                } else {
-                    req.getSession().setAttribute("loggedAsAdmin", new Boolean(false));
-                    String homePage = "/edit?id=" + user.getId();
-                    req.getSession().setAttribute("homePage", homePage);
-//                    req.setAttribute("user", user);
-//                    req.getRequestDispatcher("/pages/editUser.jsp").forward(req, resp);
-                    resp.sendRedirect(req.getContextPath() + homePage);
-                }
+            User user = userService.validUser(email, req.getParameter("password"));
+            if (user != null) {
+                req.getSession().setAttribute("roles", userService.getRoles(user));
+                req.getSession().setAttribute("admin", userService.getRoleById(1L));
+                req.getSession().setAttribute("user", user);
+                resp.sendRedirect(req.getContextPath() + "/user");
                 resp.setStatus(200);
             } else {
                 req.getRequestDispatcher("/index.jsp").forward(req, resp);

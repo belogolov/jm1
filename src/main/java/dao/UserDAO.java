@@ -21,7 +21,7 @@ public interface UserDAO {
 
     void deleteUser(User user) throws SQLException;
 
-    boolean isValidUser(String login, String password) throws SQLException;
+    User validUser(String login, String password);
 
     Set<Role> getUserRoles(User user);
 

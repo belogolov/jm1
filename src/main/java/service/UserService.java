@@ -20,7 +20,7 @@ public interface UserService {
 
     void updateUser(User user) throws DBException;
 
-    boolean isValidUser(String login, String password) throws DBException;
+    User validUser(String login, String password) throws DBException;
 
     Set<Role> getRoles(User user) throws DBException;
 

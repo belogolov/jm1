@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/edit")
+@WebServlet("/admin/edit")
 public class EditUserServlet extends HttpServlet {
     private UserService userService;
 
@@ -28,15 +28,13 @@ public class EditUserServlet extends HttpServlet {
             resp.setStatus(400);
             return;
         }
-        User user;
         try {
             long id = Long.parseLong(req.getParameter("id"));
-            user = userService.getUserById(id);
+            req.setAttribute("user", userService.getUserById(id));
         } catch (NumberFormatException | DBException e) {
             resp.setStatus(400);
             throw new IOException(e);
         }
-        req.setAttribute("user", user);
         req.getRequestDispatcher("/pages/editUser.jsp").forward(req, resp);
         resp.setContentType("text/html;charset=utf-8");
         resp.setStatus(200);

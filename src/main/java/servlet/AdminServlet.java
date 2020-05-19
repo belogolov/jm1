@@ -33,11 +33,11 @@ public class AdminServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         if (req.getParameter("Add") != null) {
-            resp.sendRedirect(req.getContextPath() + "/add");
+            resp.sendRedirect(req.getContextPath() + "/admin/add");
         } else if (req.getParameter("Edit") != null && req.getParameter("id") != null) {
-            resp.sendRedirect(req.getContextPath() + "/edit?id=" + req.getParameter("id"));
+            resp.sendRedirect(req.getContextPath() + "/admin/edit?id=" + req.getParameter("id"));
         } else if (req.getParameter("Delete") != null && req.getParameter("id") != null) {
-            resp.sendRedirect(req.getContextPath() + "/delete?id=" + req.getParameter("id"));
+            resp.sendRedirect(req.getContextPath() + "/admin/delete?id=" + req.getParameter("id"));
         } else {
             refreshUsers(req, resp);
         }

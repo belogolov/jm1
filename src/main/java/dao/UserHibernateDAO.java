@@ -16,111 +16,130 @@ import java.util.List;
 import java.util.Set;
 
 public class UserHibernateDAO implements UserDAO{
-    private SessionFactory sessionFactory = createSessionFactory();
-
-    private static SessionFactory createSessionFactory() {
-        Configuration configuration = DBHelper.getInstance().getConfiguration();
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
-        builder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = builder.build();
-        return configuration.buildSessionFactory(serviceRegistry);
-    }
+    private SessionFactory sessionFactory = DBHelper.getInstance().createSessionFactory();
 
     @Override
     public List<User> getAllUsers() {
-        Session session = sessionFactory.openSession();
-        List<User> users = session.createQuery("FROM User").list();
-        session.close();
+        List<User> users = null;
+        try (Session session = sessionFactory.openSession()) {
+            users = session.createQuery("FROM User").list();
+        }
         return users;
     }
 
     @Override
     public User getUserById(long id) {
-        Session session = sessionFactory.openSession();
-        String sql = "SELECT u FROM User u WHERE u.id=:id";
-        Query<User> query = session.createQuery(sql);
-        query.setParameter("id", id);
-        query.setMaxResults(1);
-        User user = query.getSingleResult();
-        session.close();
+        User user = null;
+        try (Session session = sessionFactory.openSession()) {
+            String sql = "SELECT u FROM User u WHERE u.id=:id";
+            Query<User> query = session.createQuery(sql);
+            query.setParameter("id", id);
+            query.setMaxResults(1);
+            user = query.getSingleResult();
+        }
         return user;
     }
 
     @Override
     public User getUserByLogin(String login) {
-        Session session = sessionFactory.openSession();
-        String sql = "SELECT u FROM User u WHERE u.email=:login";
-        Query<User> query = session.createQuery(sql);
-        query.setParameter("login", login);
-        query.setMaxResults(1);
-        User user = query.getSingleResult();
-        session.close();
+        User user = null;
+        try (Session session = sessionFactory.openSession()) {
+            String sql = "SELECT u FROM User u WHERE u.email=:login";
+            Query<User> query = session.createQuery(sql);
+            query.setParameter("login", login);
+            query.setMaxResults(1);
+            user = query.getSingleResult();
+        }
         return user;
     }
 
     @Override
     public void addUser(User user) throws SQLException {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(user);
-        transaction.commit();
-        session.close();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            try {
+                session.save(user);
+                transaction.commit();
+            } catch (RuntimeException e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                throw new SQLException(e);
+            }
+        }
     }
 
     @Override
     public void updateUser(User user) throws SQLException {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(user);
-        transaction.commit();
-        session.close();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            try {
+                session.update(user);
+                transaction.commit();
+            } catch (RuntimeException e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                throw new SQLException(e);
+            }
+        }
     }
 
     @Override
     public void deleteUser(User user) throws SQLException {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.delete(user);
-        transaction.commit();
-        session.close();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            try {
+                session.delete(user);
+                transaction.commit();
+            } catch (RuntimeException e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                throw new SQLException(e);
+            }
+        }
     }
 
     @Override
-    public boolean isValidUser(String login, String password) throws SQLException {
-        Session session = sessionFactory.openSession();
-        String sql = "SELECT u FROM User u WHERE u.email=:login";
-        Query<User> query = session.createQuery(sql);
-        query.setParameter("login", login);
-        query.setMaxResults(1);
-        User user = query.getSingleResult();
-        session.close();
-        if (user == null) {
-            return false;
+    public User validUser(String login, String password) {
+        User user = null;
+        try (Session session = sessionFactory.openSession()) {
+            String sql = "SELECT u FROM User u WHERE u.email=:login";
+            Query<User> query = session.createQuery(sql);
+            query.setParameter("login", login);
+            query.setMaxResults(1);
+            user = query.getSingleResult();
         }
-        return user.getPassword().equals(password);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
+        }
+        return null;
     }
 
     @Override
     public Set<Role> getUserRoles(User user) {
-        Session session = sessionFactory.openSession();
-        String sql = "SELECT u FROM User u WHERE u.id=:id";
-        Query<User> query = session.createQuery(sql);
-        query.setParameter("id", user.getId());
-        query.setMaxResults(1);
-        Set<Role> roles = query.getSingleResult().getRoles();
-        session.close();
+        Set<Role> roles = null;
+        try (Session session = sessionFactory.openSession()) {
+            String sql = "SELECT u FROM User u WHERE u.id=:id";
+            Query<User> query = session.createQuery(sql);
+            query.setParameter("id", user.getId());
+            query.setMaxResults(1);
+            roles = query.getSingleResult().getRoles();
+        }
         return roles;
     }
 
     @Override
     public Role getRoleById(long id) {
-        Session session = sessionFactory.openSession();
-        String sql = "SELECT r FROM Role r WHERE r.id=:id";
-        Query<Role> query = session.createQuery(sql);
-        query.setParameter("id", id);
-        query.setMaxResults(1);
-        Role role = query.getSingleResult();
-        session.close();
+        Role role = null;
+        try (Session session = sessionFactory.openSession()) {
+            String sql = "SELECT r FROM Role r WHERE r.id=:id";
+            Query<Role> query = session.createQuery(sql);
+            query.setParameter("id", id);
+            query.setMaxResults(1);
+            role = query.getSingleResult();
+        }
         return role;
     }
 }
