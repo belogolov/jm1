@@ -21,6 +21,7 @@ public class AdminFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
         boolean logged = session != null && session.getAttribute("roles") != null && session.getAttribute("admin") != null;
+        String loginURI = req.getContextPath() + "/login";
         if (logged) {
             Set<Role> roles = (Set<Role>)session.getAttribute("roles");
             Role admin = (Role) session.getAttribute("admin");
@@ -30,9 +31,8 @@ public class AdminFilter implements Filter {
                 chain.doFilter(req, resp);
             }
         } else {
-            resp.sendRedirect(req.getContextPath() + "/login");
+            resp.sendRedirect(loginURI);
         }
     }
-
 
 }

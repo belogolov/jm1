@@ -38,7 +38,7 @@ public class LoginUserServlet extends HttpServlet {
                 req.getSession().setAttribute("roles", userService.getRoles(user));
                 req.getSession().setAttribute("admin", userService.getRoleById(1L));
                 req.getSession().setAttribute("user", user);
-                resp.sendRedirect(req.getContextPath() + "/user");
+                resp.sendRedirect(req.getContextPath() + "/admin");
                 resp.setStatus(200);
             } else {
                 req.getRequestDispatcher("/index.jsp").forward(req, resp);

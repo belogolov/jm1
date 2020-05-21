@@ -18,10 +18,8 @@ public class LoginFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
-
         boolean logged = session != null && session.getAttribute("roles") != null && session.getAttribute("admin") != null;
         String loginURI = req.getContextPath() + "/login";
-
         if (req.getRequestURI().equals(loginURI)) {
             chain.doFilter(request, response);
         } else if (logged) {

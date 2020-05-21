@@ -66,32 +66,40 @@ public class UserJdbcDAO implements UserDAO {
 
     @Override
     public void addUser(User user) throws SQLException {
+        connection.setAutoCommit(false);
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("INSERT INTO users (name, email, password) " +
                     "VALUES ('" + user.getName() + "', '" + user.getEmail() + "', '" + user.getPassword() + "')");
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
         }
     }
 
     @Override
     public void deleteUser(User user) throws SQLException {
-        deleteUserById(user.getId());
+        connection.setAutoCommit(false);
+        try (PreparedStatement  stmt = connection.prepareStatement("DELETE FROM users WHERE id=?")) {
+            stmt.setLong(1, user.getId());
+            stmt.execute();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+        }
     }
 
     @Override
     public void updateUser(User user) throws SQLException {
+        connection.setAutoCommit(false);
         try (PreparedStatement  stmt = connection.prepareStatement("UPDATE users SET name=?, email=?, password=? WHERE id=?")) {
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getPassword());
             stmt.setLong(4, user.getId());
             stmt.execute();
-        }
-    }
-
-    public void deleteUserById(Long id) throws SQLException {
-        try (PreparedStatement  stmt = connection.prepareStatement("DELETE FROM users WHERE id=?")) {
-            stmt.setLong(1, id);
-            stmt.execute();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
         }
     }
 
